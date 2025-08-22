@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NightBite - Nighttime Food Delivery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(to right, #ff7e5f, #feb47b);
+            --bg-gradient: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #fff;
+            --text-secondary: #ccc;
+            --open-status: #4cd964;
+            --closing-soon-status: #ffcc00;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        section {
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #login-page, #app-page {
+            display: none;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        /* Welcome Page */
+        .welcome-content {
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .app-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: #ff7e5f;
+        }
+        
+        .welcome-content h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Login Page */
+        .login-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+        
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .forgot-password {
+            color: #ff7e5f;
+            text-decoration: none;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .divider span {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0 15px;
+            position: relative;
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .signup-link a {
+            color: #ff7e5f;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* App Page */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+            color: #ff7e5f;
+        }
+        
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .location-header:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .map-container {
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .restaurant-list {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .restaurant-list h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .restaurant-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .restaurant-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .restaurant-card.expanded {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .restaurant-basic-info {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .restaurant-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        
+        .restaurant-info h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .restaurant-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffb347;
+        }
+        
+        .restaurant-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .restaurant-card.expanded .restaurant-details {
+            max-height: 500px;
+            margin-top: 15px;
+        }
+        
+        .detail-section {
+            margin-bottom: 15px;
+        }
+        
+        .detail-section h4 {
+            margin-bottom: 8px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hours-list {
+            list-style: none;
+        }
+        
+        .hours-list li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .popular-items {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 5px 0;
+        }
+        
+        .popular-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: var(--primary-gradient);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+        }
+        
+        .btn-welcome {
+            max-width: 200px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        
+        .order-btn {
+            background: var(--primary-gradient);
+            color: var(--text-primary);
+        }
+        
+        .order-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+        }
+        
+        .view-menu-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .view-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .order-link-btn {
+            background: #6a11cb;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .order-link-btn:hover {
+            background: #5a0fb8;
+            transform: translateY(-2px);
+            color: white;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 5px 0;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary-gradient);
+        }
+        
+        .location-permission {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .location-permission i {
+            font-size: 48px;
+            color: #ff7e5f;
+            margin-bottom: 15px;
+        }
+        
+        .location-permission h2 {
+            margin-bottom: 15px;
+        }
+        
+        .location-permission p {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .delivery-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .open {
+            color: var(--open-status);
+        }
+        
+        .closing-soon {
+            color: var(--closing-soon-status);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .api-key-container {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .api-key-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .api-key-note {
+            font-size: 14px;
+            color: #ff7e5f;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-container {
+                height: 300px;
+            }
+            
+            .welcome-content h1 {
+                font-size: 32px;
+            }
+            
+            .welcome-content p {
+                font-size: 16px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Page -->
+    <section id="welcome-page">
+        <div class="welcome-content">
+            <i class="fas fa-moon app-icon"></i>
+            <h1>NightBite</h1>
+            <p>Discover delicious food from restaurants near you, open late for your nighttime cravings</p>
+            <button class="btn btn-welcome" id="get-started">Get Started</button>
+        </div>
+    </section>
+
+    <!-- Login Page -->
+    <section id="login-page">
+        <div class="login-container">
+            <h2>Welcome Back</h2>
+            
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter your email">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            
+            <div class="login-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+            
+            <button class="btn" id="login-btn">Log In</button>
+            
+            <div class="divider">
+                <span>Or continue with</span>
+            </div>
+            
+            <div class="social-login">
+                <button class="social-btn">
+                    <i class="fab fa-google"></i>
+                </button>
+                <button class="social-btn">
+                    <i class="fab fa-facebook-f"></i>
+                </button>
+                <button class="social-btn">
+                    <i class="fab fa-apple"></i>
+                </button>
+            </div>
+            
+            <div class="signup-link">
+                Don't have an account? <a href="#" id="signup-link">Sign up</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main App Page -->
+    <section id="app-page">
+        <div class="container">
+            <header>
+                <div class="logo">
+                    <i class="fas fa-moon logo-icon"></i>
+                    <h1>NightBite</h1>
+                </div>
+                <div class="location-header" id="locationHeader">
+                    <i class="fas fa-location-dot"></i>
+                    <span id="locationText">Detecting your location...</span>
+                </div>
+            </header>
+
+            <div class="location-permission" id="locationPermission">
+                <i class="fas fa-map-marker-alt"></i>
+                <h2>Find Food Near You</h2>
+                <p>Enable location access to see restaurants and hotels that deliver to you right now</p>
+                <button class="btn" id="enableLocation">
+                    <i class="fas fa-location-dot"></i> Enable Location
+                </button>
+            </div>
+
+            <div class="api-key-container" id="apiKeyContainer">
+                <h3><i class="fas fa-key"></i> API Key Setup</h3>
+                <p>To use real map data, you'll need to add your own API keys:</p>
+                <input type="text" class="api-key-input" id="mapApiKey" placeholder="Enter Map API Key (Optional)">
+                <button class="btn" id="saveApiKey">Save API Key</button>
+            
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active">All</button>
+                <button class="filter-btn">Fast Food</button>
+                <button class="filter-btn">Indian</button>
+                <button class="filter-btn">Chinese</button>
+                <button class="filter-btn">Pizza</button>
+                <button class="filter-btn">Burgers</button>
+                <button class="filter-btn">Desserts</button>
+                <button class="filter-btn">Open Now</button>
+            </div>
+
+            <div class="main-content">
+                <div class="map-container">
+                    <div id="map"></div>
+                </div>
+                
+                <div class="restaurant-list">
+                    <h2><i class="fas fa-utensils"></i> Nearby Restaurants</h2>
+                    <div id="restaurantsContainer">
+                        <!-- Restaurants will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>© 2023 NightBite - Nighttime Food Delivery App | Hackathon Project</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // App state
+        const state = {
+            map: null,
+            userMarker: null,
+            userLocation: null,
+            mapApiKey: '',
+            expandedCard: null,
+            restaurants: [
+                {
+                    name: "Midnight Diner",
+                    cuisine: "American, Comfort Food",
+                    rating: 4.5,
+                    deliveryTime: "20-30 min",
+                    status: "open",
+                    lat: 0,
+                    lng: 0,
+                    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdaufHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
+                    hours: {
+                        Monday: "5 PM - 2 AM",
+                        Tuesday: "5 PM - 2 AM",
+                        Wednesday: "5 PM - 2 AM",
+                        Thursday: "5 PM - 3 AM",
+                        Friday: "5 PM - 4 AM",
+                        Saturday: "5 PM - 4 AM",
+                        Sunday: "5 PM - 1 AM"
+                    },
+                    popularItems: ["Classic Burger", "Loaded Fries", "Chocolate Shake", "BBQ Wings"],
+                    description: "A cozy diner serving classic American comfort food late into the night.",
+                    orderPage: "order1.html?restaurant=midnight-diner"
+                },
+                {
+                    name: "Star Light Cafe",
+                    cuisine: "Cafe, Breakfast",
+                    rating: 4.2,
+                    deliveryTime: "25-35 min",
+                    status: "open",
+                    lat: 0,
+                    lng: 0,
+                    image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8Y2FmZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
+                    hours: { Monday: "24 hours", Tuesday: "24 hours", Wednesday: "24 hours", 
+                            Thursday: "24 hours", Friday: "24 hours", Saturday: "24 hours", Sunday: "24 hours" },
+                    popularItems: ["Avocado Toast", "Iced Coffee", "Breakfast Burrito", "Acai Bowl"],
+                    description: "Open 24/7, this cafe serves breakfast all day and night.",
+                    orderPage: "order1.html?restaurant=starlight-cafe"
+                },
+                {
+                    name: "Tandoori Nights",
+                    cuisine: "Indian, BBQ",
+                    rating: 4.7,
+                    deliveryTime: "30-40 min",
+                    status: "open",
+                    lat: 0,
+                    lng: 0,
+                    image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8aW5kaWFuJTIwZm9vZHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
+                    hours: {
+                        Monday: "5 PM - 12 AM", Tuesday: "5 PM - 12 AM", Wednesday: "5 PM - 12 AM",
+                        Thursday: "5 PM - 1 AM", Friday: "5 PM - 2 AM", Saturday: "5 PM - 2 AM", Sunday: "5 PM - 11 PM"
+                    },
+                    popularItems: ["Butter Chicken", "Garlic Naan", "Vegetable Biryani", "Samosa Platter"],
+                    description: "Authentic Indian cuisine with a focus on tandoori dishes.",
+                    orderPage: "order1.html?restaurant=tandoori-nights"
+                }
+            ]
+        };
+
+        // DOM Elements
+        const elements = {
+            welcomePage: document.getElementById('welcome-page'),
+            loginPage: document.getElementById('login-page'),
+            appPage: document.getElementById('app-page'),
+            locationText: document.getElementById('locationText'),
+            locationPermission: document.getElementById('locationPermission'),
+            restaurantsContainer: document.getElementById('restaurantsContainer'),
+            mapApiKey: document.getElementById('mapApiKey')
+        };
+
+        // Initialize the application
+        function initApp() {
+            // Set up event listeners
+            document.getElementById('get-started').addEventListener('click', showLoginPage);
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('signup-link').addEventListener('click', showLoginPage);
+            document.getElementById('enableLocation').addEventListener('click', requestLocation);
+            document.getElementById('locationHeader').addEventListener('click', requestLocation);
+            document.getElementById('saveApiKey').addEventListener('click', saveApiKey);
+            
+            // Check if we have a saved API key
+            const savedKey = localStorage.getItem('nightbite_map_api_key');
+            if (savedKey) {
+                elements.mapApiKey.value = savedKey;
+                state.mapApiKey = savedKey;
+            }
+        }
+
+        // Show login page
+        function showLoginPage() {
+            elements.welcomePage.style.display = 'none';
+            elements.loginPage.style.display = 'flex';
+        }
+
+        // Login function
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            // For demo purposes, just show the app page
+            elements.loginPage.style.display = 'none';
+            elements.appPage.style.display = 'flex';
+            
+            // Initialize the app functionality
+            initAppFunctionality();
+        }
+
+        // Initialize app functionality after login
+        function initAppFunctionality() {
+            // Check if location permission is already granted
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => handleLocationSuccess(position),
+                    error => elements.locationPermission.style.display = 'block',
+                    { timeout: 1000 }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Save API key to localStorage
+        function saveApiKey() {
+            const key = elements.mapApiKey.value.trim();
+            if (key) {
+                localStorage.setItem('nightbite_map_api_key', key);
+                state.mapApiKey = key;
+                alert('API Key saved successfully!');
+                
+                // If we already have a location, refresh the map
+                if (state.userLocation) {
+                    initMap();
+                }
+            } else {
+                alert('Please enter a valid API key');
+            }
+        }
+
+        // Request location access
+        function requestLocation() {
+            if (navigator.geolocation) {
+                elements.locationText.textContent = "Detecting your location...";
+                elements.locationPermission.style.display = 'none';
+                
+                navigator.geolocation.getCurrentPosition(
+                    handleLocationSuccess,
+                    handleLocationError,
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Handle successful location detection
+        function handleLocationSuccess(position) {
+            state.userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            
+            // Update location text with actual coordinates
+            elements.locationText.textContent = 
+                `Location: ${state.userLocation.lat.toFixed(4)}, ${state.userLocation.lng.toFixed(4)}`;
+                
+            elements.locationPermission.style.display = 'none';
+            
+            // Initialize map and display restaurants
+            initMap();
+            updateRestaurantPositions();
+            displayRestaurants();
+        }
+
+        // Update restaurant positions relative to user location
+        function updateRestaurantPositions() {
+            // Generate random positions near the user
+            state.restaurants.forEach(restaurant => {
+                // Add small random offsets to user location
+                const latOffset = (Math.random() - 0.5) * 0.02;
+                const lngOffset = (Math.random() - 0.5) * 0.02;
+                
+                restaurant.lat = state.userLocation.lat + latOffset;
+                restaurant.lng = state.userLocation.lng + lngOffset;
+            });
+        }
+
+        // Handle location error
+        function handleLocationError(error) {
+            console.error("Error getting location:", error);
+            elements.locationText.textContent = "Location access denied";
+            elements.locationPermission.style.display = 'block';
+            
+            // For demo purposes, use a default location (New York)
+            state.userLocation = { lat: 40.7128, lng: -74.0060 };
+            
+            // Initialize map with default location
+            initMap();
+            updateRestaurantPositions();
+            displayRestaurants();
+        }
+
+        // Initialize the map
+        function initMap() {
+            // Remove existing map if any
+            if (state.map) {
+                state.map.remove();
+            }
+            
+            // Create map centered on user's location
+            state.map = L.map('map').setView([state.userLocation.lat, state.userLocation.lng], 14);
+            
+            // Add tile layer (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(state.map);
+            
+            // Add user marker
+            state.userMarker = L.marker([state.userLocation.lat, state.userLocation.lng])
+                .addTo(state.map)
+                .bindPopup('Your location')
+                .openPopup();
+            
+            // Add restaurant markers
+            state.restaurants.forEach(restaurant => {
+                const marker = L.marker([restaurant.lat, restaurant.lng])
+                    .addTo(state.map)
+                    .bindPopup(`
+                        <strong>${restaurant.name}</strong><br>
+                        ${restaurant.cuisine}<br>
+                        ⭐ ${restaurant.rating} | 🕐 ${restaurant.deliveryTime}
+                        <br><a href="${restaurant.orderPage}" target="_blank">Order Now</a>
+                    `);
+                    
+                // Add click event to center map on restaurant when clicked
+                marker.on('click', function() {
+                    state.map.setView([restaurant.lat, restaurant.lng], 16);
+                    expandRestaurantCard(restaurant.name);
+                });
+            });
+        }
+
+        // Expand restaurant card when clicked
+        function expandRestaurantCard(restaurantName) {
+            const cards = document.querySelectorAll('.restaurant-card');
+            
+            cards.forEach(card => {
+                if (card.querySelector('h3').textContent === restaurantName) {
+                    if (card.classList.contains('expanded')) {
+                        card.classList.remove('expanded');
+                        state.expandedCard = null;
+                    } else {
+                        // Collapse any currently expanded card
+                        if (state.expandedCard) {
+                            state.expandedCard.classList.remove('expanded');
+                        }
+                        
+                        card.classList.add('expanded');
+                        state.expandedCard = card;
+                        
+                        // Scroll into view if needed
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            });
+        }
+
+        // Display restaurants in the list
+        function displayRestaurants() {
+            elements.restaurantsContainer.innerHTML = '';
+            
+            state.restaurants.forEach(restaurant => {
+                const card = document.createElement('div');
+                card.className = 'restaurant-card';
+                
+                // Calculate distance (simulated)
+                const distance = (Math.random() * 4 + 0.5).toFixed(1);
+                
+                // Create hours list HTML
+                let hoursHTML = '';
+                for (const [day, time] of Object.entries(restaurant.hours)) {
+                    hoursHTML += `<li><span>${day}</span><span>${time}</span></li>`;
+                }
+                
+                // Create popular items HTML
+                const popularItemsHTML = restaurant.popularItems.map(item => 
+                    `<div class="popular-item">${item}</div>`
+                ).join('');
+                
+                card.innerHTML = `
+                    <div class="restaurant-basic-info">
+                        <img src="${restaurant.image}" alt="${restaurant.name}" class="restaurant-image">
+                        <div class="restaurant-info">
+                            <h3>${restaurant.name}</h3>
+                            <p>${restaurant.cuisine}</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span>${restaurant.rating}</span>
+                                <span class="delivery-time">
+                                    <i class="fas fa-clock"></i>
+                                    ${restaurant.deliveryTime}
+                                </span>
+                            </div>
+                            <div class="status ${restaurant.status}">
+                                <i class="fas fa-circle"></i>
+                                <span>${restaurant.status === 'open' ? 'Open now' : 'Closing soon'} • ${distance} miles</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="restaurant-details">
+                        <div class="detail-section">
+                            <h4><i class="fas fa-info-circle"></i>Description</h4>
+                            <p>${restaurant.description}</p>
+                        </div>
+                        <div class="detail-section">
+                            <h4><i class="fas fa-clock"></i>Hours</h4>
+                            <ul class="hours-list">
+                                ${hoursHTML}
+                            </ul>
+                        </div>
+                        <div class="detail-section">
+                            <h4><i class="fas fa-fire"></i>Popular Items</h4>
+                            <div class="popular-items">
+                                ${popularItemsHTML}
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <a href="${restaurant.orderPage}" class="order-link-btn">
+                                <i class="fas fa-utensils"></i> Order Now
+                            </a>
+                            <button class="action-btn view-menu-btn">
+                                <i class="fas fa-book"></i> View Menu
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                elements.restaurantsContainer.appendChild(card);
+                
+                // Add event listener to the card
+                card.addEventListener('click', function(e) {
+                    if (!e.target.closest('.action-buttons')) {
+                        if (this.classList.contains('expanded')) {
+                            this.classList.remove('expanded');
+                            state.expandedCard = null;
+                        } else {
+                            if (state.expandedCard) {
+                                state.expandedCard.classList.remove('expanded');
+                            }
+                            this.classList.add('expanded');
+                            state.expandedCard = this;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+        
+        // Make function available globally for marker clicks
+        window.expandRestaurantCard = expandRestaurantCard;
+    </script>
+</body>
+</html>
