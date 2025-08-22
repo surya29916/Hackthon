@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Indian Hotel - Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #f9f6f1, #e6dfd3);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .tagline {
+            font-style: italic;
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 0 auto 25px;
+        }
+        
+        .menu-toggle {
+            display: block;
+            margin: 0 auto 40px;
+            padding: 18px 50px;
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: bold;
+            transition: all 0.4s ease;
+            box-shadow: 0 6px 15px rgba(255, 107, 53, 0.4);
+        }
+        
+        .menu-toggle:hover {
+            background: #e85a2a;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.5);
+        }
+        
+        .menu-container {
+            display: none;
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .menu-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .menu-category {
+            padding: 40px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .category-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ff6b35;
+            font-size: 2.2rem;
+            border-bottom: 3px solid #ff6b35;
+            padding-bottom: 15px;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .menu-item {
+            background: #f9f9f9;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .item-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .item-details {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .item-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .item-price {
+            color: #ff6b35;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        
+        .item-desc {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            flex-grow: 1;
+        }
+        
+        .item-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #ff6b35;
+            color: #fff;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            align-self: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .cart-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+        
+        .quantity-btn {
+            background: #f1f1f1;
+            border: none;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .quantity-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .quantity-input {
+            width: 40px;
+            height: 35px;
+            text-align: center;
+            border: none;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        .add-to-cart {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .add-to-cart:hover {
+            background: #e85a2a;
+        }
+        
+        .cart-summary {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin: 30px 40px 0;
+            display: none;
+        }
+        
+        .cart-summary h2 {
+            color: #ff6b35;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .cart-items {
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding-top: 15px;
+            border-top: 2px solid #ff6b35;
+        }
+        
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background: #e85a2a;
+        }
+        
+        .remove-item {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .order-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .order-notification.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .notification-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification-content i {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .notification-content h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .notification-content p {
+            margin-bottom: 25px;
+            color: #666;
+        }
+        
+        .notification-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+        
+        .notification-btn:hover {
+            background: #e85a2a;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: #333;
+            color: #fff;
+            border-radius: 15px;
+        }
+        
+        .social-icons {
+            margin: 20px 0;
+        }
+        
+        .social-icons a {
+            color: #ffd700;
+            font-size: 1.8rem;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            color: #ff6b35;
+        }
+        
+        .footer-contact {
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-category {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .tagline {
+                font-size: 1.1rem;
+            }
+            
+            .menu-toggle {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+            
+            .cart-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .quantity-controls {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .add-to-cart {
+                width: 100%;
+            }
+            
+            .cart-summary {
+                margin: 30px 20px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <h1>Royal Indian Hotel</h1>
+            <p class="tagline">Experience the authentic flavors of India in every bite</p>
+        </header>
+        
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i> View Our Menu
+        </button>
+        
+        <div class="menu-container" id="menuContainer">
+            <!-- Menu content will be loaded dynamically -->
+        </div>
+        
+        <!-- Order Notification Modal -->
+        <div class="order-notification" id="orderNotification">
+            <div class="notification-content">
+                <i class="fas fa-check-circle"></i>
+                <h2>Order Confirmed!</h2>
+                <p>Your order has been received and is being prepared. You can view your order details on the orders page.</p>
+                <button class="notification-btn" id="notificationBtn">View Orders</button>
+            </div>
+        </div>
+        
+        <footer>
+            <h3>Royal Indian Hotel</h3>
+            <p class="footer-contact">Open daily from 11:00 AM to 11:00 PM</p>
+            <p class="footer-contact">Reservations: +91 98765 43210 | info@royalindianhotel.com</p>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="orders.html"><i class="fas fa-receipt"></i></a>
+            </div>
+            <p>&copy; 2023 Royal Indian Hotel. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Menu data structure
+        const menuData = [
+            {
+                category: "Starters & Appetizers",
+                items: [
+                    {
+                        name: "Paneer Tikka",
+                        price: 285,
+                        description: "Grilled cottage cheese cubes marinated in spices and yogurt, cooked in tandoor.",
+                        image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                        badge: "Vegetarian"
+                    },
+                    {
+                        name: "Chicken 65",
+                        price: 325,
+                        description: "Spicy, deep-fried chicken bites with curry leaves and red chilies.",
+                        image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                        badge: "Chef's Special"
+                    },
+                    {
+                        name: "Samosa",
+                        price: 180,
+                        description: "Crispy pastry filled with spiced potatoes and peas, served with chutney.",
+                        image: "image5.png",
+                        badge: "Vegetarian"
+                    }
+                ]
+            },
+            {
+                category: "Main Course",
+                items: [
+                    {
+                        name: "Hyderabadi Biryani",
+                        price: 395,
+                        description: "Fragrant basmati rice cooked with tender meat, saffron, and spices.",
+                        image: "https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                        badge: "Signature Dish"
+                    },
+                    {
+                        name: "Butter Chicken",
+                        price: 365,
+                        description: "Tender chicken in a creamy tomato and butter sauce with spices.",
+                        image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                        badge: "Popular"
+                    },
+                    {
+                        name: "Masala Dosa",
+                        price: 195,
+                        description: "Crispy rice crepe filled with spiced potatoes, served with sambar and chutney.",
+                        image: "image6.png",
+                        badge: "Vegetarian"
+                    }
+                ]
+            },
+            {
+                category: "Breads & Rice",
+                items: [
+                    {
+                        name: "Garlic Naan",
+                        price: 95,
+                        description: "Soft leavened bread baked in tandoor with garlic and butter topping.",
+                        image: "image1.png",
+                        badge: "Vegetarian"
+                    },
+                    {
+                        name: "Jeera Rice",
+                        price: 145,
+                        description: "Fragrant basmati rice tempered with cumin seeds and spices.",
+                        image: "image2.png",
+                        badge: "Vegetarian"
+                    },
+                    {
+                        name: "Laccha Paratha",
+                        price: 85,
+                        description: "Multi-layered whole wheat flatbread, flaky and buttery.",
+                        image: "image3.png",
+                        badge: "Vegetarian"
+                    }
+                ]
+            },
+            {
+                category: "Desserts",
+                items: [
+                    {
+                        name: "Gulab Jamun",
+                        price: 145,
+                        description: "Soft milk solids dumplings soaked in rose-flavored sugar syrup.",
+                        image: "image4.png",
+                        badge: "Vegetarian"
+                    },
+                    {
+                        name: "Kulfi",
+                        price: 125,
+                        description: "Traditional Indian ice cream with pistachios and cardamom.",
+                        image: "image7.png",
+                        badge: "Vegetarian"
+                    },
+                    {
+                        name: "Rasmalai",
+                        price: 165,
+                        description: "Soft cheese patties in sweetened, thickened milk flavored with cardamom.",
+                        image: "image8.png",
+                        badge: "Vegetarian"
+                    }
+                ]
+            },
+            {
+                category: "Beverages",
+                items: [
+                    {
+                        name: "Masala Chai",
+                        price: 85,
+                        description: "Spiced tea brewed with ginger, cardamom, cinnamon, and cloves.",
+                        image: "image9.png",
+                        badge: "Hot Beverage"
+                    },
+                    {
+                        name: "Mango Lassi",
+                        price: 135,
+                        description: "Refreshing yogurt-based drink with mango pulp and spices.",
+                        image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                        badge: "Cold Beverage"
+                    },
+                    {
+                        name: "Filter Coffee",
+                        price: 105,
+                        description: "South Indian style coffee brewed with chicory, served with froth.",
+                        image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                        badge: "Hot Beverage"
+                    }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const menuContainer = document.getElementById('menuContainer');
+            const orderNotification = document.getElementById('orderNotification');
+            const notificationBtn = document.getElementById('notificationBtn');
+            
+            let cart = [];
+            
+            // Generate menu from data
+            function generateMenu() {
+                let menuHTML = '';
+                
+                menuData.forEach(category => {
+                    menuHTML += `
+                        <section class="menu-category">
+                            <h2 class="category-title">${category.category}</h2>
+                            <div class="menu-items">
+                    `;
+                    
+                    category.items.forEach(item => {
+                        menuHTML += `
+                            <div class="menu-item">
+                                <div class="item-image" style="background-image: url('${item.image}');"></div>
+                                <div class="item-details">
+                                    <div class="item-header">
+                                        <h3 class="item-title">${item.name}</h3>
+                                        <span class="item-price">₹${item.price}</span>
+                                    </div>
+                                    <p class="item-desc">${item.description}</p>
+                                    <span class="item-badge">${item.badge}</span>
+                                    <div class="cart-controls">
+                                        <div class="quantity-controls">
+                                            <button class="quantity-btn minus">-</button>
+                                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                                            <button class="quantity-btn plus">+</button>
+                                        </div>
+                                        <button class="add-to-cart">Add to Cart</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    menuHTML += `
+                            </div>
+                        </section>
+                    `;
+                });
+                
+                // Add cart summary
+                menuHTML += `
+                    <div class="cart-summary" id="cartSummary">
+                        <h2>Your Order</h2>
+                        <div class="cart-items" id="cartItems">
+                            <div class="empty-cart-message">Your cart is empty. Add some delicious items!</div>
+                        </div>
+                        <div class="cart-total">
+                            <span>Total:</span>
+                            <span id="cartTotal">₹0</span>
+                        </div>
+                        <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+                    </div>
+                `;
+                
+                menuContainer.innerHTML = menuHTML;
+                
+                // Set up event listeners after generating the menu
+                setupEventListeners();
+            }
+            
+            // Set up all event listeners
+            function setupEventListeners() {
+                const cartSummary = document.getElementById('cartSummary');
+                const cartItems = document.getElementById('cartItems');
+                const cartTotal = document.getElementById('cartTotal');
+                const checkoutBtn = document.getElementById('checkoutBtn');
+                
+                // Toggle menu visibility
+                menuToggle.addEventListener('click', toggleMenu);
+                
+                // Quantity controls
+                document.querySelectorAll('.quantity-btn').forEach(btn => {
+                    btn.addEventListener('click', handleQuantityChange);
+                });
+                
+                // Add to cart functionality
+                document.querySelectorAll('.add-to-cart').forEach((btn, index) => {
+                    btn.addEventListener('click', function() {
+                        addToCart(this, index);
+                    });
+                });
+                
+                // Checkout button
+                checkoutBtn.addEventListener('click', handleCheckout);
+                
+                // Notification button
+                notificationBtn.addEventListener('click', handleNotification);
+                
+                // Load cart from localStorage if available
+                const savedCart = JSON.parse(localStorage.getItem('royalIndianCart'));
+                if (savedCart && savedCart.length > 0) {
+                    cart = savedCart;
+                    updateCart();
+                    cartSummary.style.display = 'block';
+                }
+            }
+            
+            // Toggle menu visibility
+            function toggleMenu() {
+                if (menuContainer.classList.contains('visible')) {
+                    menuContainer.classList.remove('visible');
+                    setTimeout(() => {
+                        menuContainer.style.display = 'none';
+                    }, 500);
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i> View Our Menu';
+                } else {
+                    menuContainer.style.display = 'block';
+                    setTimeout(() => {
+                        menuContainer.classList.add('visible');
+                    }, 10);
+                    menuToggle.innerHTML = '<i class="fas fa-times"></i> Hide Menu';
+                }
+            }
+            
+            // Handle quantity changes
+            function handleQuantityChange() {
+                const input = this.parentElement.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+                
+                if (this.classList.contains('plus')) {
+                    if (value < 10) input.value = value + 1;
+                } else if (this.classList.contains('minus')) {
+                    if (value > 1) input.value = value - 1;
+                }
+            }
+            
+            // Add item to cart
+            function addToCart(button, index) {
+                // Find the category and item index
+                let itemIndex = 0;
+                let categoryIndex = 0;
+                let count = 0;
+                
+                for (let i = 0; i < menuData.length; i++) {
+                    for (let j = 0; j < menuData[i].items.length; j++) {
+                        if (count === index) {
+                            categoryIndex = i;
+                            itemIndex = j;
+                            break;
+                        }
+                        count++;
+                    }
+                }
+                
+                const item = menuData[categoryIndex].items[itemIndex];
+                const menuItem = button.closest('.menu-item');
+                const quantity = parseInt(menuItem.querySelector('.quantity-input').value);
+                
+                // Check if item already in cart
+                const existingItemIndex = cart.findIndex(cartItem => cartItem.name === item.name);
+                
+                if (existingItemIndex !== -1) {
+                    // Update quantity if item exists
+                    cart[existingItemIndex].quantity += quantity;
+                } else {
+                    // Add new item to cart
+                    cart.push({
+                        name: item.name,
+                        price: item.price,
+                        quantity: quantity
+                    });
+                }
+                
+                updateCart();
+                
+                // Show cart summary if it was hidden
+                document.getElementById('cartSummary').style.display = 'block';
+                
+                // Show confirmation animation
+                button.textContent = 'Added!';
+                button.style.background = '#4CAF50';
+                setTimeout(() => {
+                    button.textContent = 'Add to Cart';
+                    button.style.background = '';
+                }, 1500);
+            }
+            
+            // Update cart display
+            function updateCart() {
+                const cartItems = document.getElementById('cartItems');
+                const cartTotal = document.getElementById('cartTotal');
+                
+                // Clear current cart display
+                cartItems.innerHTML = '';
+                
+                if (cart.length === 0) {
+                    cartItems.innerHTML = '<div class="empty-cart-message">Your cart is empty. Add some delicious items!</div>';
+                    cartTotal.textContent = '₹0';
+                    return;
+                }
+                
+                let total = 0;
+                
+                // Add each item to cart display
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div>
+                            <strong>${item.name}</strong>
+                            <div>₹${item.price} x ${item.quantity}</div>
+                        </div>
+                        <div>
+                            <strong>₹${itemTotal}</strong>
+                            <button class="remove-item" data-index="${index}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    
+                    cartItems.appendChild(cartItem);
+                });
+                
+                // Update total
+                cartTotal.textContent = `₹${total}`;
+                
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-item').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        cart.splice(index, 1);
+                        updateCart();
+                    });
+                });
+                
+                // Save cart to localStorage
+                localStorage.setItem('royalIndianCart', JSON.stringify(cart));
+            }
+            
+            // Handle checkout process
+            function handleCheckout() {
+                if (cart.length === 0) {
+                    alert('Your cart is empty. Please add some items before checkout.');
+                    return;
+                }
+                
+                // Calculate total
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                
+                // Create order object
+                const order = {
+                    items: [...cart],
+                    total: total,
+                    date: new Date().toLocaleString()
+                };
+                
+                // Save order to localStorage
+                saveOrder(order);
+                
+                // Show notification
+                orderNotification.classList.add('visible');
+            }
+            
+            // Save order to localStorage
+            function saveOrder(order) {
+                let orders = JSON.parse(localStorage.getItem('royalIndianOrders')) || [];
+                orders.push(order);
+                localStorage.setItem('royalIndianOrders', JSON.stringify(orders));
+                
+                // Clear cart after order
+                cart = [];
+                updateCart();
+                localStorage.removeItem('royalIndianCart');
+            }
+            
+            // Handle notification button click
+            function handleNotification() {
+                // Hide notification
+                orderNotification.classList.remove('visible');
+                
+                // Redirect to orders page
+                window.location.href = 'orders.html';
+            }
+            
+            // Initialize the menu
+            generateMenu();
+        });
+    </script>
+</body>
+</html>
